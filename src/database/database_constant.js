@@ -18,17 +18,6 @@ module.exports = Object.freeze({
   payment_status: ['pending', 'paid', 'cancel'],
   payment_method: ['cod', 'credit_card'],
   car_type: ['support', 'suv', 'mpv', 'sedan', 'coupe', 'hatchback'],
-  rental_statuses: [
-    'pending',
-    'confirmed',
-    'active',
-    'completed',
-    'canceled',
-    'expired',
-    'returned',
-    'damaged',
-    'delayed',
-    'refunded',
-  ],
+  rental_statuses: ['pending', 'confirmed', 'active', 'returned'],
   user_role: ['admin', 'user'],
 });

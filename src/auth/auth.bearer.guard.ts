@@ -7,11 +7,18 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { TokenExpiredError } from 'jsonwebtoken';
+import { UsersService } from 'src/users/users.service';
+import { AuthPayloadToken } from './auth.service';
 import { IS_PUBLIC_KEY } from './public.decorator';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private reflector: Reflector) {}
+  constructor(
+    private jwtService: JwtService,
+    private readonly userService: UsersService,
+    private reflector: Reflector,
+  ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -28,14 +35,22 @@ export class AuthenticationGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
-      });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
-      // TODO: update check token on database
-      request['user'] = payload;
-    } catch {
+      const payload: AuthPayloadToken = await this.jwtService.verify(token);
+      const isUserTokenValid = await this.userService.validateUserToken(
+        payload.user_id,
+        token,
+      );
+      if (!isUserTokenValid) {
+        throw new UnauthorizedException('User access_token unauthorized');
+      }
+      request['token_payload'] = payload;
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException('access_token has expired!');
+      }
+      if (error instanceof UnauthorizedException) {
+        throw error;
+      }
       throw new UnauthorizedException();
     }
     return true;

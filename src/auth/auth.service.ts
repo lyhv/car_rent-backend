@@ -4,8 +4,7 @@ import { LoginTicket, OAuth2Client } from 'google-auth-library';
 import { TokenResponse } from './interfaces/token.response.interface';
 const client = new OAuth2Client(process.env.CLIENT_ID);
 export interface AuthPayloadToken {
-  password: string;
-  email: string;
+  user_id: number;
 }
 @Injectable()
 export class AuthService {

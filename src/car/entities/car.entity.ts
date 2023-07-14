@@ -4,9 +4,9 @@ import CarImage from './car_images.entity';
 import { CarType } from './car_type.entity';
 
 @Exclude()
-export class Car {
-  constructor(partial: Partial<Car>) {
-    Object.assign(this, plainToClass(Car, partial));
+export class CarEntity {
+  constructor(partial: Partial<CarEntity>) {
+    Object.assign(this, plainToClass(CarEntity, partial));
   }
   @Expose()
   id: number;

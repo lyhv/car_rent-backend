@@ -13,7 +13,7 @@ import { UsersService } from 'src/users/users.service';
 import { BasicAuthGuard } from './auth.basic.gurard';
 
 @Controller('auth')
-@ApiTags('Auth')
+@ApiTags('auth')
 @UseGuards(BasicAuthGuard) // Apply the guard to all routes in this controller
 @ApiBasicAuth()
 export class AuthController {

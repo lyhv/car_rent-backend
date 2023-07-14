@@ -1,60 +1,39 @@
-export interface Rental {
-  rental_id: number;
-  customer_id: number;
-  car_id: number;
-  location_pick_up: string;
-  location_drop: string;
+import { Exclude, Expose, plainToClass } from 'class-transformer';
+import { CarEntity } from 'src/car/entities/car.entity';
+import BillingInfo from 'src/database/models/BillingInfo';
+import Payment from 'src/database/models/Payment';
+import PaymentStatus from 'src/database/models/PaymentStatus';
+import RentalStatus from 'src/database/models/RentalStatus';
+
+@Exclude()
+export class Rental {
+  constructor(partial: Partial<Rental>) {
+    Object.assign(this, plainToClass(Rental, partial));
+  }
+  @Expose()
+  id: number;
+  @Expose()
+  car: CarEntity;
+  @Expose()
+  billingInfo: BillingInfo;
+  @Expose()
+  payment_status: PaymentStatus;
+  @Expose()
+  rental_status: RentalStatus;
+  @Expose()
+  location_pick_up: Location;
+  @Expose()
+  location_drop: Location;
+  @Expose()
   rental_start_date: Date;
+  @Expose()
   rental_end_date: Date;
+  @Expose()
   return_date: Date;
+  @Expose()
+  payment: Payment;
+  @Expose()
   created_at: Date;
+  @Expose()
   updated_at: Date;
-  status: string;
-}
-export interface Payment {
-  payment_id: number;
-  rental_id: number;
-  payment_amount: number;
-  payment_date: Date;
-  payment_method: string;
-  card_id: number;
-  transaction_id: number;
-  payment_status: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface CreditCard {
-  card_id: number;
-  customer_id: number;
-  card_number: string;
-  card_name: string;
-  cvc: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface PayPalTransaction {
-  transaction_id: number;
-  customer_id: number;
-  transaction_details: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface EthTransaction {
-  transaction_hash: string;
-  customer_id: number;
-  transaction_details: string;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface Session {
-  session_id: number;
-  customer_id: number;
-  car_id: number;
-  created_at: Date;
-  updated_at: Date;
-  expiration_time: Date;
 }

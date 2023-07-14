@@ -14,19 +14,23 @@ module.exports = {
         unique: true,
       },
       payment_amount: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       payment_date: {
+        allowNull: false,
         type: Sequelize.DATE,
       },
       payment_method_id: {
+        allowNull: false,
         type: Sequelize.INTEGER,
       },
       transaction_id: {
         type: Sequelize.INTEGER,
       },
       payment_status_id: {
-        type: Sequelize.STRING,
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
       created_at: {
         allowNull: false,

@@ -10,6 +10,7 @@ import {
 import CarImage from './CarImage';
 import CarPrice from './CarPrice';
 import CarType from './CarType';
+import Rental from './Rental';
 
 @Table({ tableName: 'cars' })
 export class Car extends Model {
@@ -56,10 +57,19 @@ export class Car extends Model {
   @Column({ defaultValue: () => new Date() })
   updated_at: Date;
 
-  @HasMany(() => CarPrice)
+  @HasMany(() => CarPrice, {
+    foreignKey: 'car_id',
+    as: 'car_prices',
+  })
   car_prices: CarPrice[];
 
-  @HasMany(() => CarImage)
+  @HasMany(() => Rental)
+  rentals: Rental[];
+
+  @HasMany(() => CarImage, {
+    foreignKey: 'car_id',
+    as: 'images', // Ensure this matches the alias used in the includeClause
+  })
   images: CarImage[];
 }
 

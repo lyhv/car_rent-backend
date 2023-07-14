@@ -9,6 +9,7 @@ import { CreateOptions } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { AuthService } from 'src/auth/auth.service';
 import { LoginAuth, RegisterUser } from 'src/auth/dto/auth.dto';
+import BillingInfo from 'src/database/models/BillingInfo';
 import { User } from 'src/database/models/User';
 import UserToken from 'src/database/models/UserToken';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -23,6 +24,8 @@ export class UsersService {
     private userModel: typeof User,
     @InjectModel(UserToken)
     private tokenModel: typeof UserToken,
+    @InjectModel(BillingInfo)
+    private billingInfoModel: typeof BillingInfo,
     private readonly sequelize: Sequelize,
   ) {}
   create(createUserDto: CreateUserDto, option?: CreateOptions): Promise<User> {
@@ -31,6 +34,18 @@ export class UsersService {
 
   findAll() {
     return `This action returns all users`;
+  }
+  /**
+   *
+   * @param userId
+   * @returns
+   */
+  findAllBillingInfo(userId: number) {
+    return this.billingInfoModel.findAll({
+      where: {
+        user_id: userId,
+      },
+    });
   }
 
   findOne(email: string): Promise<number | null> {
@@ -52,6 +67,17 @@ export class UsersService {
     return `This action removes a #${id} user`;
   }
 
+  async validateUserToken(id: number, access_token: string) {
+    const tokenId = await this.tokenModel.findOne({
+      attributes: ['id'],
+      where: {
+        user_id: id,
+        access_token: access_token,
+      },
+    });
+    return tokenId != null;
+  }
+
   async login(login: LoginAuth) {
     const user = await this.userModel.findOne({
       where: {
@@ -66,8 +92,7 @@ export class UsersService {
       if (isCorrectPassword) {
         const jwtToken = await this.authService.generateAppToken(
           {
-            email: login.email,
-            password: login.password,
+            user_id: user.id,
           },
           parseInt(process.env.JWT_EXPIRES_IN),
         );
@@ -89,16 +114,9 @@ export class UsersService {
     }
   }
   async register(register: RegisterUser) {
-    const { email, password } = register;
+    const { email } = register;
     const user = await this.findOne(email);
     if (!user) {
-      const jwtToken = await this.authService.generateAppToken(
-        {
-          email,
-          password,
-        },
-        parseInt(process.env.JWT_EXPIRES_IN),
-      );
       const result = await this.sequelize.transaction(async (transaction) => {
         const newUser = await this.userModel.create(
           {
@@ -106,6 +124,12 @@ export class UsersService {
             user_role_id: 2,
           },
           { transaction: transaction },
+        );
+        const jwtToken = await this.authService.generateAppToken(
+          {
+            user_id: newUser.id,
+          },
+          parseInt(process.env.JWT_EXPIRES_IN),
         );
         const userToken = await this.tokenModel.create(
           {

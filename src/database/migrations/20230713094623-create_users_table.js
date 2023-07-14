@@ -12,7 +12,6 @@ module.exports = {
       user_role_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        unique: true,
         validate: {
           isNumeric: true,
         },

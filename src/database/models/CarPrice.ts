@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   ForeignKey,
@@ -15,6 +16,9 @@ export class CarPrice extends Model {
   @Column
   @ForeignKey(() => Car)
   car_id: number;
+
+  @BelongsTo(() => Car)
+  car: number;
 
   @Column({ type: DataType.INTEGER })
   price_per_day: number;

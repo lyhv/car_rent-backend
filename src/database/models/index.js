@@ -13,7 +13,7 @@ const env = process.env.NODE_ENV || 'development';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const config = require(__dirname + '/../database.js')[env];
 const db = {};
-
+console.log('aaaa ', config);
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
