@@ -16,12 +16,6 @@ export class CarReview extends Model {
 
   @Column
   message: string;
-
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
 }
 
 export default CarReview;

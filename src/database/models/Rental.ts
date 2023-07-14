@@ -3,6 +3,7 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   HasOne,
   Model,
   Table,
@@ -11,7 +12,7 @@ import BillingInfo from './BillingInfo';
 import Car from './Car';
 import Location from './Location';
 import Payment from './Payment';
-import RentalStatus from './RentalStatus';
+import RentalHistory from './RentalHistory';
 
 @Table({ tableName: 'rentals' })
 export class Rental extends Model {
@@ -61,15 +62,11 @@ export class Rental extends Model {
   @Column
   return_date: Date;
 
-  @Column
-  @ForeignKey(() => RentalStatus)
-  rental_status_id: number;
-
-  @BelongsTo(() => RentalStatus)
-  rental_status: RentalStatus;
-
   @HasOne(() => Payment)
   payment: Payment;
+
+  @HasMany(() => RentalHistory)
+  rental_histories: RentalHistory[];
 
   @Column({ defaultValue: () => new Date() })
   created_at: Date;

@@ -5,12 +5,21 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { IS_PRIVATE_KEY } from './public.decorator';
 
 @Injectable()
 export class BasicAuthGuard implements CanActivate {
-  constructor(private readonly reflector: Reflector) {}
-
+  constructor(private reflector: Reflector) {}
   canActivate(context: ExecutionContext): boolean {
+    const isPrivate = this.reflector.getAllAndOverride<boolean>(
+      IS_PRIVATE_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+    if (isPrivate) {
+      // 💡 See this condition
+      return true;
+    }
+
     // Add your authentication logic here
     // Extract the request object from the execution context
     const request = context.switchToHttp().getRequest();

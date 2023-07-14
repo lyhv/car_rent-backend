@@ -2,51 +2,24 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('rentals', {
+    await queryInterface.createTable('rental_histories', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      user_id: {
+      rental_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      car_id: {
+      rental_status_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      car_price_id: {
+      changed_by_user_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
-      },
-      billing_info_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      payment_id: {
-        type: Sequelize.INTEGER,
-        unique: true,
-      },
-      location_pick_up_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      location_drop_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER,
-      },
-      rental_start_date: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      rental_end_date: {
-        allowNull: false,
-        type: Sequelize.DATE,
-      },
-      return_date: {
-        type: Sequelize.DATE,
       },
       created_at: {
         allowNull: false,
@@ -64,6 +37,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('rentals');
+    await queryInterface.dropTable('rental_histories');
   },
 };

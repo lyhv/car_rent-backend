@@ -1,41 +1,19 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthenticationGuard } from 'src/auth/auth.bearer.guard';
+import { AuthPayloadToken } from 'src/auth/auth.service';
+import { Private } from 'src/auth/public.decorator';
 import { UsersService } from './users.service';
 
-@Controller('users')
+@Controller('')
 @ApiTags('users')
-@UseGuards(AuthenticationGuard)
 @ApiBearerAuth()
+@Private()
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  // @Get()
-  // findAll() {
-  //   return this.usersService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   //return this.usersService.findOne(+id);
-  // }
-  @Get(':id/billing')
-  findOneBillingInfo(@Param('id', ParseIntPipe) id: number) {
-    return this.usersService.findAllBillingInfo(+id);
+  @Get('user/billings')
+  findOneBillingInfo(@Req() request) {
+    const payload: AuthPayloadToken = request['token_payload'];
+    return this.usersService.findAllBillingInfo(payload.user_id);
   }
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-  //   return this.usersService.update(+id, updateUserDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.usersService.remove(+id);
-  // }
 }

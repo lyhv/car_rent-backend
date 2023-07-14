@@ -1,5 +1,3 @@
-// databaseConfig.ts
-
 interface DatabaseConfig {
   username: string;
   password: string;
@@ -9,7 +7,7 @@ interface DatabaseConfig {
   dialect: 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql';
 }
 
-export const configuration = (): DatabaseConfig => {
+export const databaseConfig = (): DatabaseConfig => {
   return {
     username: process.env.DB_USER,
     password: process.env.DB_PASS,

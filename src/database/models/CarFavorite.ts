@@ -10,12 +10,6 @@ export class CarFavorite extends Model {
 
   @Column
   car_id: number;
-
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
 }
 
 export default CarFavorite;

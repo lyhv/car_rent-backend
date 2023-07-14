@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { CarService } from 'src/car/car.service';
@@ -10,7 +10,7 @@ import Rental from 'src/database/models/Rental';
 import RentalStatus from 'src/database/models/RentalStatus';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreateRentalDto } from './dto/create-rental.dto';
-import { UpdateRentalDto } from './dto/update-rental.dto';
+import { RentalHistoryDto } from './dto/create-rental_history.dto';
 
 @Injectable()
 export class RentalService {
@@ -18,27 +18,33 @@ export class RentalService {
     private carService: CarService,
     @InjectModel(Rental)
     private rentalModel: typeof Rental,
+    @InjectModel(Rental)
+    private rentalHistory: typeof Rental,
     @InjectModel(Payment)
     private paymentModel: typeof Payment,
     private readonly sequelize: Sequelize,
   ) {}
+
   async create(userId: number, createRentalDto: CreateRentalDto) {
-    const isCarValid = await this.carService.isCarValid(createRentalDto.car_id);
-    if (!isCarValid) {
-      throw Error('Car is unavailable!');
-    }
-    const carDetail = await this.carService.findOne(createRentalDto.car_id);
-    const data = await this.sequelize.transaction(async (transaction) => {
+    const rental_id = await this.sequelize.transaction(async (t) => {
+      // Get Car by id and check is available
+      const carDetail = await this.carService.findOne(
+        createRentalDto.car_id,
+        t,
+      );
+      if (!carDetail || !carDetail.available) {
+        throw BadRequestException('Car is unavailable!');
+      }
       const payment_method_id = createRentalDto.payment_method_id;
       delete createRentalDto.payment_method_id;
       const rawCreateRental = {
         user_id: userId,
         ...createRentalDto,
-        rental_status_id: 1,
         car_price_id: carDetail.car_price.id,
       };
+      // Create rental order
       const rental = await this.rentalModel.create(rawCreateRental, {
-        transaction: transaction,
+        transaction: t,
       });
 
       const paymentDto: CreatePaymentDto = {
@@ -50,23 +56,28 @@ export class RentalService {
         payment_method_id: payment_method_id,
         payment_status_id: 1,
       };
-
-      const payment = await this.paymentModel.create(
+      const rentalHistoryDto: RentalHistoryDto = {
+        rental_id: rental.id,
+        rental_status_id: 1,
+        changed_by_user_id: userId,
+      };
+      // Create Rental History
+      await this.rentalHistory.create(
+        { ...rentalHistoryDto },
+        { transaction: t },
+      );
+      // Create Payment Status
+      await this.paymentModel.create(
         { ...paymentDto },
         {
-          transaction: transaction,
+          transaction: t,
         },
       );
-      return {
-        ...rental.toJSON(),
-        payment,
-      };
+      // Lock this Car
+      await this.carService.updateCarStatus(carDetail.id, false, t);
+      return rental.id;
     });
-    return data;
-  }
-
-  findAll() {
-    return `This action returns all rental`;
+    return { rental_id };
   }
 
   findOne(id: number) {
@@ -103,13 +114,5 @@ export class RentalService {
       include: includeModel,
     });
     return data;
-  }
-
-  update(id: number, updateRentalDto: UpdateRentalDto) {
-    return `This action updates a #${id} rental`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} rental`;
   }
 }

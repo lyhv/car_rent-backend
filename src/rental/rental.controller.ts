@@ -1,3 +1,4 @@
+import { InjectQueue } from '@nestjs/bull';
 import {
   Body,
   Controller,
@@ -5,20 +6,23 @@ import {
   Param,
   Post,
   Req,
-  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { AuthenticationGuard } from 'src/auth/auth.bearer.guard';
+import { Queue } from 'bull';
 import { AuthPayloadToken } from 'src/auth/auth.service';
+import { Private } from 'src/auth/public.decorator';
 import { CreateRentalDto } from './dto/create-rental.dto';
 import { RentalService } from './rental.service';
 @Controller('rental')
 @ApiTags('rental')
-@UseGuards(AuthenticationGuard)
 @ApiBearerAuth()
+@Private()
 export class RentalController {
-  constructor(private readonly rentalService: RentalService) {}
+  constructor(
+    private readonly rentalService: RentalService,
+    @InjectQueue('rental') private rentalQueue: Queue,
+  ) {}
 
   @Post()
   create(
@@ -29,24 +33,8 @@ export class RentalController {
     const payload: AuthPayloadToken = request['token_payload'];
     return this.rentalService.create(payload.user_id, createRentalDto);
   }
-
-  // @Get()
-  // findAll() {
-  //   return this.rentalService.findAll();
-  // }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.rentalService.findOne(+id);
   }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateRentalDto: UpdateRentalDto) {
-  //   return this.rentalService.update(+id, updateRentalDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.rentalService.remove(+id);
-  // }
 }

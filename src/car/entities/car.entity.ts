@@ -12,9 +12,6 @@ export class CarEntity {
   id: number;
 
   @Expose()
-  created_by_user_id: number;
-
-  @Expose()
   capacity: number;
 
   @Expose()
@@ -37,12 +34,6 @@ export class CarEntity {
 
   @Expose()
   available: boolean;
-
-  @Expose()
-  created_at: Date;
-
-  @Expose()
-  updated_at: Date;
 
   @Expose()
   @Type(() => CarType)

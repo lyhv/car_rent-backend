@@ -3,18 +3,17 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Post,
-  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBasicAuth, ApiTags } from '@nestjs/swagger';
 import { LoginAuth, RegisterUser } from 'src/auth/dto/auth.dto';
 import { UsersService } from 'src/users/users.service';
-import { BasicAuthGuard } from './auth.basic.gurard';
+import { Public } from './public.decorator';
 
 @Controller('auth')
 @ApiTags('auth')
-@UseGuards(BasicAuthGuard) // Apply the guard to all routes in this controller
+@Public()
 @ApiBasicAuth()
 export class AuthController {
   constructor(private readonly userService: UsersService) {}

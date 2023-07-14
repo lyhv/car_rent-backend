@@ -22,12 +22,6 @@ export class Location extends Model {
 
   @Column
   postal_code: string;
-
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
 }
 
 export default Location;

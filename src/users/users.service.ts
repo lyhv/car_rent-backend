@@ -14,7 +14,6 @@ import { User } from 'src/database/models/User';
 import UserToken from 'src/database/models/UserToken';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponse } from './dto/response-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -30,10 +29,6 @@ export class UsersService {
   ) {}
   create(createUserDto: CreateUserDto, option?: CreateOptions): Promise<User> {
     return this.userModel.create({ ...createUserDto }, option);
-  }
-
-  findAll() {
-    return `This action returns all users`;
   }
   /**
    *
@@ -57,14 +52,6 @@ export class UsersService {
         },
       })
       .then((result) => (result ? result.id : null));
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 
   async validateUserToken(id: number, access_token: string) {

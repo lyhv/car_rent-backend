@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Op } from 'sequelize';
-import { Sequelize } from 'sequelize-typescript';
+import { Op, Transaction } from 'sequelize';
 import Car from 'src/database/models/Car';
 import CarImage from 'src/database/models/CarImage';
 import CarPrice from 'src/database/models/CarPrice';
 import CarType from 'src/database/models/CarType';
-import { CreateCarDto } from './dto/create-car.dto';
 import { GetCarsQueryParams } from './dto/search-car.dto';
-import { UpdateCarDto } from './dto/update-car.dto';
 import { CarEntity } from './entities/car.entity';
 
 @Injectable()
@@ -16,36 +13,7 @@ export class CarService {
   constructor(
     @InjectModel(Car)
     private carModel: typeof Car,
-    @InjectModel(CarType)
-    private carTypeModel: typeof CarType,
-    @InjectModel(CarImage)
-    private carImageModel: typeof CarImage,
-    private readonly sequelize: Sequelize,
   ) {}
-  create(createCarDto: CreateCarDto) {
-    return 'This action adds a new car';
-  }
-
-  async isCarValid(carId: number) {
-    const whereClause = {
-      available: true,
-      id: {
-        [Op.eq]: carId,
-        [Op.notIn]: this.sequelize.literal(`(
-            SELECT Car.id
-            FROM rentals AS Rental
-            INNER JOIN rental_statuses AS RentalStatus ON Rental.rental_status_id = RentalStatus.id
-            WHERE Rental.car_id = Car.id
-            AND RentalStatus.status IN ('active', 'pending', 'confirmed')
-          )`),
-      },
-    };
-    const id = await this.carModel.findOne({
-      attributes: ['id'],
-      where: whereClause,
-    });
-    return id != null;
-  }
 
   /**
    *
@@ -77,15 +45,6 @@ export class CarService {
     if (carTypeIdList && carTypeIdList.length > 0) {
       whereClause.car_type_id = { [Op.in]: carTypeIdList };
     }
-    whereClause.id = {
-      [Op.notIn]: this.sequelize.literal(`(
-          SELECT Car.id
-          FROM rentals AS Rental
-          INNER JOIN rental_statuses AS RentalStatus ON Rental.rental_status_id = RentalStatus.id
-          WHERE Rental.car_id = Car.id
-          AND RentalStatus.status IN ('active', 'pending', 'confirmed')
-        )`),
-    };
     const includeClause: any[] = [
       { model: CarType },
       {
@@ -166,7 +125,7 @@ export class CarService {
       });
   }
 
-  findOne(id: number) {
+  findOne(id: number, t?: Transaction) {
     return this.carModel
       .findOne({
         where: {
@@ -189,8 +148,13 @@ export class CarService {
             order: [['created_at', 'DESC']],
           },
         ],
+        lock: t ? t.LOCK.UPDATE : false,
+        transaction: t,
       })
       .then((car) => {
+        if (car == null) {
+          return null;
+        }
         const car_price = car.car_prices.length > 0 ? car.car_prices[0] : null;
         return new CarEntity({
           ...car.toJSON(),
@@ -198,12 +162,21 @@ export class CarService {
         });
       });
   }
-
-  update(id: number, updateCarDto: UpdateCarDto) {
-    return `This action updates a #${id} car`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} car`;
+  /**
+   *
+   * @param car_id
+   * @param status
+   * @param t
+   */
+  updateCarStatus(car_id: number, available: boolean, t?: Transaction) {
+    this.carModel.update(
+      {
+        available: available,
+      },
+      {
+        where: { id: car_id },
+        transaction: t,
+      },
+    );
   }
 }

@@ -13,13 +13,14 @@ import {
 @ValidatorConstraint({ name: 'dateComparison', async: false })
 export class DateComparisonValidator implements ValidatorConstraintInterface {
   validate(value: any, args: ValidationArguments) {
+    const currentDate = new Date();
     const startDate = args.object['rental_start_date'];
     const endDate = value;
-    return endDate >= startDate;
+    return endDate >= startDate && startDate > currentDate;
   }
 
   defaultMessage(args: ValidationArguments) {
-    return 'rental_end_date must be greater than or equal to rental_start_date';
+    return 'rental_end_date must be greater than or equal to rental_start_date and both must be after the current date.';
   }
 }
 export class CreateRentalDto {
@@ -79,4 +80,9 @@ export class CreateRentalDto {
     }
     return totalDays;
   }
+}
+
+export interface CreateRentalQueue {
+  user_id: number;
+  create_rental_dto: CreateRentalDto;
 }

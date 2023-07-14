@@ -51,12 +51,6 @@ export class Car extends Model {
   @Column({ defaultValue: true, type: DataType.BOOLEAN })
   available: boolean;
 
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
-
   @HasMany(() => CarPrice, {
     foreignKey: 'car_id',
     as: 'car_prices',

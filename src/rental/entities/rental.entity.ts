@@ -3,7 +3,6 @@ import { CarEntity } from 'src/car/entities/car.entity';
 import BillingInfo from 'src/database/models/BillingInfo';
 import Payment from 'src/database/models/Payment';
 import PaymentStatus from 'src/database/models/PaymentStatus';
-import RentalStatus from 'src/database/models/RentalStatus';
 
 @Exclude()
 export class Rental {
@@ -18,8 +17,6 @@ export class Rental {
   billingInfo: BillingInfo;
   @Expose()
   payment_status: PaymentStatus;
-  @Expose()
-  rental_status: RentalStatus;
   @Expose()
   location_pick_up: Location;
   @Expose()

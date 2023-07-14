@@ -6,12 +6,6 @@ export class PaymentMethod extends Model {
 
   @Column({ unique: true })
   method: string;
-
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
 }
 
 export default PaymentMethod;

@@ -25,12 +25,6 @@ export class CarPrice extends Model {
 
   @Column
   effective_date: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  created_at: Date;
-
-  @Column({ defaultValue: () => new Date() })
-  updated_at: Date;
 }
 
 export default CarPrice;
